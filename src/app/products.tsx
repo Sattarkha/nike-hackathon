@@ -1,13 +1,11 @@
-'use client'; // Add this line to indicate it's a client-side component
+"use client"; // ✅ This ensures it's a client component
 
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { createClient } from "../../utils/sanityClient";
-import { getProductsQuery } from "../../utils/queries";
+import { fetchProducts } from "../utils/sanityClient"; // ✅ Use fetchProducts instead
+import { getProductsQuery } from "../utils/queries";
 import SearchBar from "@/components/SearchBar";
-
-
 
 interface Product {
   _id: string;
@@ -18,20 +16,22 @@ interface Product {
 }
 
 const HomePage = () => {
-
-  
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch products client-side
+  // ✅ Fetch products inside useEffect (Client-side fetching)
   useEffect(() => {
-    const fetchProducts = async () => {
-      const fetchedProducts: Product[] = await createClient.fetch(getProductsQuery);
-      setProducts(fetchedProducts);
-      setFilteredProducts(fetchedProducts); // Set the filtered list as well initially
+    const loadProducts = async () => {
+      try {
+        const fetchedProducts: Product[] = await fetchProducts(getProductsQuery);
+        setProducts(fetchedProducts);
+        setFilteredProducts(fetchedProducts);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
     };
-    fetchProducts();
+    loadProducts();
   }, []);
 
   const handleSearch = (term: string) => {
@@ -44,8 +44,6 @@ const HomePage = () => {
 
   return (
     <div className="container mx-auto p-4">
-
-
       {/* Search Bar */}
       <SearchBar searchTerm={searchTerm} setSearchTerm={handleSearch} />
 

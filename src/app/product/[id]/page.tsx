@@ -1,40 +1,38 @@
-"use client"
-import { createClient } from "../../../../utils/sanityClient";
-import { groq } from "next-sanity";
-import Image from "next/image";
-import React from "react";
+"use client"; 
+
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { add } from "../../redux/Cartslice";
+import { fetchProducts } from "../../../utils/sanityClient";
+import Image from "next/image";
+import { getProductsQuery } from "@/utils/queries";
 
-
-
-
-
-const ProductDetailPage = async ({ params }: { params: { id: string } }) => {
+const ProductDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const dispatch = useDispatch();
 
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const query = groq`
-    *[_type == "product" && _id == $id][0] {
-      _id,
-      name,
-      description,
-      price,
-      colors,
-      image {
-        asset-> {
-          url
-        }
+  useEffect(() => {
+    const loadProduct = async () => {
+      setLoading(true);
+      try {
+        const products = await fetchProducts(getProductsQuery); // ✅ Fetch all products
+        const selectedProduct = products.find((p: any) => p._id === id); // ✅ Filter here
+        setProduct(selectedProduct);
+      } catch (error) {
+        console.error("Error fetching product:", error);
       }
-    }
-  `;
+      setLoading(false);
+    };
 
-  const product = await createClient.fetch(query, { id });
+    loadProduct();
+  }, [id]);
 
-  if (!product) {
-    return <div>Product not found!</div>;
-  }
+  if (loading) return <div className="text-center py-10">Loading...</div>;
+
+  if (!product) return <div className="text-center py-10 text-red-500">Product not found.</div>;
 
   const handleAddToCart = () => {
     dispatch(
@@ -42,7 +40,7 @@ const ProductDetailPage = async ({ params }: { params: { id: string } }) => {
         id: product._id,
         title: product.name,
         price: product.price,
-        image: product.image?.asset?.url || "/placeholder.jpg",
+        image: product.imageUrl || "/placeholder.jpg",
       })
     );
     alert(`${product.name} added to the cart!`);
@@ -56,7 +54,7 @@ const ProductDetailPage = async ({ params }: { params: { id: string } }) => {
       <div className="flex flex-col md:flex-row gap-8 items-center">
         <div className="w-full md:w-1/2">
           <Image
-            src={product.image?.asset?.url || "/placeholder.jpg"}
+            src={product.imageUrl || "/placeholder.jpg"}
             alt={product.name}
             width={600}
             height={600}
@@ -89,7 +87,6 @@ const ProductDetailPage = async ({ params }: { params: { id: string } }) => {
             Add to Cart
           </button>
         </div>
-        
       </div>
     </div>
   );

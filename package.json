@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.0",
-    "@sanity/client": "^6.27.0",
+    "@sanity/client": "^6.27.2",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.71.1",
     "axios": "^1.7.9",
