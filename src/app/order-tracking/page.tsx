@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-const OrderTracking = () => {
+const OrderTrackingComponent = () => {
   const [orderId, setOrderId] = useState<string>("");
   const [order, setOrder] = useState<any | null>(null);
   const [error, setError] = useState<string>("");
@@ -116,6 +116,15 @@ const OrderTracking = () => {
         </div>
       )}
     </div>
+  );
+};
+
+// ✅ Suspense Wrapper
+const OrderTracking = () => {
+  return (
+    <Suspense fallback={<div className="text-center text-gray-500 mt-6">Loading Order Tracking...</div>}>
+      <OrderTrackingComponent />
+    </Suspense>
   );
 };
 
