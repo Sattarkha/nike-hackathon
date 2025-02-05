@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import StripePayment from "./StripePayment";
 
 const Checkout = () => {
   const [step, setStep] = useState(1);
@@ -167,6 +168,7 @@ const Checkout = () => {
           </div>
         )}
       </form>
+      <StripePayment/>
     </div>
   );
 };
